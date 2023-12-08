@@ -1,53 +1,105 @@
-import React, {useState} from 'react';
-import {Button, Text, TextInput, View} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { useState } from "react";
+import { Alert, Button, Text, TextInput, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { removeNote, updateNote } from "../store/noteSlice";
 
 const ListNoteScreen = () => {
   const dispatch = useDispatch();
-  const notes = useSelector((state: any) => state.note.notes);
+  const [Id, setId] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const notes = useSelector((state: any) => state.notes);
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const handleRemoveNote = (id: any) => {
+    dispatch(removeNote(id));
+  };
 
-  const handleAddNote = () => {
-    // dispatch(addNote({id: uuid.v4(), text: setContent}));
+  const handleUpdateNote = () => {
+    if (title && content) {
+      dispatch(updateNote({ id: Id, title, content }));
+      setId("");
+      setTitle("");
+      setContent("");
+    } else {
+      Alert.alert("Insert required fields!!");
+    }
   };
 
   return (
-    <View style={{margin: 20}}>
-      <Text>Add note:</Text>
-      <TextInput
-        placeholder="title"
-        onChangeText={text => {
-          setTitle(text);
-        }}
-        style={{backgroundColor: 'red'}}
-        value={title}
-      />
-      <TextInput
-        placeholder="content"
-        onChangeText={text => {
-          setContent(text);
-        }}
-        value={content}
-      />
-      <Button
-        title="Add Note"
-        onPress={() => {
-          handleAddNote();
-        }}
-      />
-      <Text>List of notes:</Text>
-      {/* {notes?.map((note: any) => (
-        <View key={note.id}>
-          <Text>{note.text}</Text>
-          <TextInput
-            placeholder="Update note"
-            value={newNoteText}
-            onChangeText={text => setNewNoteText(text)}
-          /> 
+    <View style={{ margin: 20 }}>
+      {notes?.map((note: any) => (
+        <View
+          key={note.id}
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text>{note.title}</Text>
+          <Text>{note.content}</Text>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <View style={{ padding: 5 }}>
+              <Button
+                title="edit"
+                onPress={() => {
+                  setId(note.id);
+                  setTitle(note.title);
+                  setContent(note.content);
+                }}
+                color={"purple"}
+              />
+            </View>
+            <View style={{ padding: 5 }}>
+              <Button
+                title="erase"
+                color={"red"}
+                onPress={() => handleRemoveNote(note.id)}
+              />
+            </View>
+          </View>
         </View>
-      ))} */}
+      ))}
+
+      {Id && (
+        <View style={{ marginTop: 20 }}>
+          <TextInput
+            placeholder="Input yor title"
+            onChangeText={(text) => {
+              setTitle(text);
+            }}
+            style={{ borderColor: "gray", borderWidth: 1, marginBottom: 15 }}
+            value={title}
+          />
+          <TextInput
+            placeholder="Input yor content"
+            onChangeText={(text) => {
+              setContent(text);
+            }}
+            value={content}
+            style={{ borderColor: "gray", borderWidth: 1, marginBottom: 15 }}
+          />
+          <Button
+            color={"green"}
+            title="Update"
+            onPress={() => {
+              handleUpdateNote();
+            }}
+          />
+        </View>
+      )}
+
+      <View style={{ marginTop: 15 }}>
+        <Button
+          title="Go to add note"
+          color={"green"}
+          onPress={() => {
+            //@ts-ignore
+            navigation.navigate("ListNotes");
+          }}
+        />
+      </View>
     </View>
   );
 };
